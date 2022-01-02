@@ -19,6 +19,6 @@ class TaskModel extends HiveObject {
   @HiveField(4)
   late String date;
 
-  @HiveField(5)
-  late String subTask;
+  // @HiveField(5)
+  // late List<String> subTaskList;
 }

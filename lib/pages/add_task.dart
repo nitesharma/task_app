@@ -25,7 +25,7 @@ class _AddTaskState extends State<AddTask> {
   TextEditingController dateController = TextEditingController();
   TextEditingController titleController = TextEditingController();
   TextEditingController noteController = TextEditingController();
-  TextEditingController subaTaskController = TextEditingController();
+  TextEditingController subTaskController = TextEditingController();
 
   convertMonth(int month) {
     switch (month) {
@@ -75,23 +75,44 @@ class _AddTaskState extends State<AddTask> {
   }
 
   DropdownMenuItem<String> buildCityItems(String item) => DropdownMenuItem(
-        child: Text(
-          item,
-          style: const TextStyle(color: Colors.black),
+        child: Row(
+          // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Container(
+              height: 18,
+              width: 18,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(4),
+                border: Border.all(
+                    color: (item == 'Work') ? Colors.blue : Colors.red),
+              ),
+            ),
+            const SizedBox(
+              width: 10,
+            ),
+            Text(
+              item,
+              style: const TextStyle(color: Colors.black),
+            ),
+          ],
         ),
         value: item,
       );
 
   Future add(
-    String title,
-  ) async {
+      {required String title,
+      required String category,
+      required String date,
+      required bool status,
+      required List<String> subList,
+      required String notes}) async {
     final task = TaskModel()
       ..title = title
-      ..category = selectedCat
-      ..date = dateSel
-      ..isComplete = false
-      ..note = note
-      ..subTask = subTaskList.toString();
+      ..category = category
+      ..date = date
+      ..isComplete = status
+      ..note = notes;
+    // ..subTaskList = subList;
 
     final box = Boxes.getTransactions();
     box.add(task);
@@ -100,6 +121,16 @@ class _AddTaskState extends State<AddTask> {
   @override
   void initState() {
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    dateController.dispose();
+    noteController.dispose();
+    titleController.dispose();
+    subTaskController.dispose();
+
+    super.dispose();
   }
 
   @override
@@ -235,6 +266,8 @@ class _AddTaskState extends State<AddTask> {
                           ),
                         ),
                         Container(
+                          padding: const EdgeInsets.only(left: 14),
+
                           decoration: BoxDecoration(
                             color: kSecondry,
                             borderRadius: BorderRadius.circular(12),
@@ -342,7 +375,7 @@ class _AddTaskState extends State<AddTask> {
                       width: MediaQuery.of(context).size.width,
                       height: 50,
                       child: TextFormField(
-                        controller: subaTaskController,
+                        controller: subTaskController,
                         // onChanged: (val) => subTaskList!.add(val),
                         decoration: InputDecoration(
                           border: OutlineInputBorder(
@@ -351,8 +384,8 @@ class _AddTaskState extends State<AddTask> {
                           suffix: IconButton(
                             icon: const Icon(Icons.check),
                             onPressed: () {
-                              subTaskList.add(subaTaskController.text);
-                              subaTaskController.clear();
+                              subTaskList.add(subTaskController.text);
+                              subTaskController.clear();
                               FocusScope.of(context).unfocus();
                               setState(() {});
                             },
@@ -415,12 +448,14 @@ class _AddTaskState extends State<AddTask> {
                   InkWell(
                     onTap: () {
                       dateSel = dateController.text;
-                      print(title);
-                      print(selectedCat);
-                      print(dateSel);
-                      print(note);
-                      print(subTaskList);
-                      add(title);
+
+                      add(
+                          title: title,
+                          category: selectedCat,
+                          date: dateSel,
+                          notes: note,
+                          status: false,
+                          subList: subTaskList);
                       Navigator.of(context).pop();
                     },
                     child: Container(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:lottie/lottie.dart';
 import 'package:task/const.dart';
 import 'package:task/model/model.dart';
 
@@ -39,7 +40,7 @@ class _HomeState extends State<Home> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        // elevation: 0,
+        elevation: 0,
         centerTitle: true,
         title: const Text(
           "Tasks",
@@ -51,54 +52,90 @@ class _HomeState extends State<Home> {
         builder: (BuildContext context, box, Widget? child) {
           final tasks = box.values.toList().cast<TaskModel>();
 
-          return ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
-            itemCount: tasks.length,
-            itemBuilder: (BuildContext context, int index) {
-              return Container(
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  width: MediaQuery.of(context).size.width,
-                  child: Row(
-                    children: [
-                      InkWell(
-                        onTap: () {
-                          isComplete = !isComplete;
-                          editStatus(tasks[index], isComplete);
-                          setState(() {});
-                        },
-                        child: Container(
-                          height: 40,
-                          width: 40,
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12),
-                              color: kSecondry),
-                          child: (tasks[index].isComplete)
-                              ? const Icon(Icons.check)
-                              : null,
-                        ),
+          return (tasks.isNotEmpty)
+              ? ListView.builder(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
+                  itemCount: tasks.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return Dismissible(
+                      direction: DismissDirection.endToStart,
+                      onDismissed: (direction) {
+                        setState(() {
+                          tasks[index].delete();
+                        });
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text("Task Deleted")));
+                      },
+                      background: Container(
+                        alignment: Alignment.centerLeft,
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        color: Colors.green,
+                        child: const Icon(Icons.archive_sharp,
+                            color: Colors.white, size: 32),
                       ),
-                      const SizedBox(width: 30),
-                      InkWell(
-                        onTap: () {
-                          Navigator.of(context).push(MaterialPageRoute(
-                              builder: (_) => EditTask(
-                                    task: tasks[index],
-                                  )));
-                        },
-                        child: Text(
-                          tasks[index].title,
-                          style: TextStyle(
-                            fontSize: 18,
-                            decoration: (tasks[index].isComplete)
-                                ? TextDecoration.lineThrough
-                                : TextDecoration.none,
-                          ),
-                        ),
+                      secondaryBackground: Container(
+                        alignment: Alignment.centerRight,
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        color: Colors.red,
+                        child: const Icon(Icons.delete,
+                            color: Colors.white, size: 32),
                       ),
-                    ],
-                  ));
-            },
-          );
+                      key: ValueKey<int>(tasks.length),
+                      child: Container(
+                          color: kSecondry,
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          width: MediaQuery.of(context).size.width,
+                          child: Row(
+                            children: [
+                              InkWell(
+                                onTap: () {
+                                  isComplete = !isComplete;
+                                  editStatus(tasks[index], isComplete);
+                                  setState(() {});
+                                },
+                                child: Container(
+                                  height: 40,
+                                  width: 40,
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(12),
+                                      color: kSecondry),
+                                  child: (tasks[index].isComplete)
+                                      ? const Icon(Icons.check)
+                                      : null,
+                                ),
+                              ),
+                              const SizedBox(width: 30),
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.of(context).push(MaterialPageRoute(
+                                      builder: (_) => EditTask(
+                                            task: tasks[index],
+                                          )));
+                                },
+                                child: Text(
+                                  tasks[index].title,
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    decoration: (tasks[index].isComplete)
+                                        ? TextDecoration.lineThrough
+                                        : TextDecoration.none,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          )),
+                    );
+                  },
+                )
+              : Center(
+                  child: LottieBuilder.network(
+                    'https://assets7.lottiefiles.com/packages/lf20_mf5j5kua.json',
+                    // fit: BoxFit.cover,
+                  ),
+                  // child: Text("No Task"),
+                );
         },
       ),
       floatingActionButton: FloatingActionButton(
@@ -106,7 +143,13 @@ class _HomeState extends State<Home> {
           Navigator.of(context)
               .push(MaterialPageRoute(builder: (_) => const AddTask()));
         },
-        child: const Icon(Icons.add),
+        backgroundColor: kSecondry,
+        elevation: 4,
+        splashColor: kpink,
+        child: const Icon(
+          Icons.add,
+          color: Colors.black,
+        ),
       ),
     );
   }

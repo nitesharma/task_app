@@ -25,7 +25,9 @@ class _EditTaskState extends State<EditTask> {
   DateTime selectedDate = DateTime.now();
   String dateSel = "";
   int catIndex = 0;
-  bool isComplete = false;
+  late bool isComplete;
+  List<String> subTaskList = [];
+  String note = "";
 
   convertMonth(int month) {
     switch (month) {
@@ -110,18 +112,33 @@ class _EditTaskState extends State<EditTask> {
     for (int i = 0; i < dropList.length; i++) {
       if (widget.task.category == dropList[i]) {
         catIndex = i;
+        selectedCat = dropList[i];
       }
     }
+    isComplete = widget.task.isComplete;
     dateController.text = widget.task.date;
+
     noteController = TextEditingController(text: widget.task.note);
+    // subTaskList = widget.task.subTaskList;
   }
 
   void deleteTask(TaskModel taskModel) {
     taskModel.delete();
   }
 
-  void editTask(TaskModel taskModel, String title) {
+  void editTask({
+    required TaskModel taskModel,
+    required String title,
+    required String date,
+    required String category,
+    required String notes,
+    required List<String> subtask,
+  }) {
     taskModel.title = title;
+    taskModel.category = category;
+    taskModel.date = date;
+    taskModel.note = notes;
+    // taskModel.subTaskList = subtask;
     taskModel.save();
   }
 
@@ -133,6 +150,9 @@ class _EditTaskState extends State<EditTask> {
 
   @override
   void dispose() {
+    titleController!.dispose();
+    noteController!.dispose();
+    dateController.dispose();
     super.dispose();
   }
 
@@ -354,6 +374,38 @@ class _EditTaskState extends State<EditTask> {
               const SizedBox(
                 height: 20,
               ),
+              (subTaskList.isNotEmpty)
+                  ? SizedBox(
+                      width: MediaQuery.of(context).size.width,
+                      // height: MediaQuery.of(context).size.height*0.02,
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        // scrollDirection: A,
+                        itemCount: subTaskList.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          return Container(
+                              padding: const EdgeInsets.symmetric(vertical: 10),
+                              width: MediaQuery.of(context).size.width,
+                              child: Row(
+                                children: [
+                                  Container(
+                                    height: 40,
+                                    width: 40,
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(12),
+                                        color: kSecondry),
+                                  ),
+                                  const SizedBox(width: 30),
+                                  Text(
+                                    subTaskList[index],
+                                    style: const TextStyle(fontSize: 18),
+                                  ),
+                                ],
+                              ));
+                        },
+                      ),
+                    )
+                  : const SizedBox(),
               (addTask)
                   ? SizedBox(
                       width: MediaQuery.of(context).size.width,
@@ -422,8 +474,24 @@ class _EditTaskState extends State<EditTask> {
                   ),
                   InkWell(
                     onTap: () {
-                      // print(title);
-                      editTask(widget.task, title);
+                      if (title.isEmpty) {
+                        title = titleController!.text;
+                      }
+                      if (dateSel.isEmpty) {
+                        dateSel = dateController.text;
+                      }
+                      if (note.isEmpty) {
+                        note = noteController!.text;
+                      }
+
+                      editTask(
+                        taskModel: widget.task,
+                        title: title,
+                        date: dateSel,
+                        category: selectedCat,
+                        notes: note,
+                        subtask: subTaskList,
+                      );
                       Navigator.of(context).pop();
                     },
                     child: Container(
