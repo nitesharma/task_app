@@ -84,7 +84,7 @@ class _HomeState extends State<Home> {
                       ),
                       key: ValueKey<int>(tasks.length),
                       child: Container(
-                          color: kSecondry,
+                          //  color: kSecondry,
                           padding: const EdgeInsets.symmetric(vertical: 10),
                           width: MediaQuery.of(context).size.width,
                           child: Row(

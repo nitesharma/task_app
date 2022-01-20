@@ -12,7 +12,10 @@ class AddTask extends StatefulWidget {
 }
 
 class _AddTaskState extends State<AddTask> {
-  final List dropList = ["Work", "Home", "No List"];
+  final List dropList = [
+    "Work",
+    "Home",
+  ];
   List<DropdownMenuItem<String>> dropDownCat = [];
   String selectedCat = "";
   bool addTask = false;

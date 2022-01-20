@@ -13,7 +13,7 @@ class EditTask extends StatefulWidget {
 }
 
 class _EditTaskState extends State<EditTask> {
-  final List dropList = [" ", "Work", "Home"];
+  final List dropList = ["Work", "Home"];
   List<DropdownMenuItem<String>> dropDownCat = [];
   TextEditingController? titleController;
   TextEditingController dateController = TextEditingController();
